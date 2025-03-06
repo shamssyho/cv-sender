@@ -1,0 +1,43 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: cv-sender
+      POSTGRES_USER: shams
+      POSTGRES_PASSWORD: shams1289
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  # Nest.js API
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: nest-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://shams:shams1289@postgres:5432/cv-sender
+    volumes:
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+
+  # React Frontend
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: react-front
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    volumes:
+      - ./front:/usr/src/app
+      - /usr/src/app/node_modules
