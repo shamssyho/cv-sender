@@ -1,7 +1,9 @@
-import { Logger, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Application } from 'src/entities/application.entity';
+import { ApplicationService } from 'src/services/application.service';
+import { AutomationService } from 'src/services/automation.service';
+import { ApplicationController } from 'src/controllers/application.controller';
 
 @Module({
   imports: [
@@ -12,16 +14,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: 'shams',
       password: 'shams1289',
       database: 'cv-sender',
-      entities: ['dist/**/*.entity{.ts,.js}'],
+      entities: [Application],
       autoLoadEntities: true,
       synchronize: true,
     }),
+    TypeOrmModule.forFeature([Application]),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [ApplicationController],
+  providers: [ApplicationService, AutomationService],
+  exports: [ApplicationService, AutomationService],
 })
-export class AppModule {
-  constructor() {
-    Logger.log('✅ SeleniumModule chargé avec succès', 'AppModule');
-  }
-}
+export class AppModule {}

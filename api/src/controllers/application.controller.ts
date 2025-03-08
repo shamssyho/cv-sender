@@ -1,37 +1,43 @@
-import { Get, Body, Post, InternalServerErrorException } from '@nestjs/common';
+import {
+  Get,
+  Body,
+  Post,
+  InternalServerErrorException,
+  Controller,
+} from '@nestjs/common';
+import { CreateApplicationDto } from 'src/dto/create-application.dto';
+import { AutomationService } from 'src/services/automation.service';
 import { ApplicationService } from 'src/services/application.service';
 
 @Controller()
 export class ApplicationController {
   constructor(
     private readonly applicationService: ApplicationService,
-    private readonly automationService: AutomationService,
+    private readonly automationService: AutomationService, // ✅ Injection correcte
   ) {}
 
   @Post('apply')
-  async apply(@Body() dto: ApplyDto) {
-    // dto contient par ex: { platform: 'LinkedIn', jobUrl: '...', cvPath: '...', coverLetterPath: '...' }
+  async apply(@Body() dto: CreateApplicationDto) {
     try {
       const result = await this.automationService.apply(
         dto.platform,
         dto.jobUrl,
         dto.cvPath,
-        dto.coverLetterPath,
       );
-      // Enregistrer le résultat (succès/échec) avec détails dans la base
-      await this.applicationService.create({
-        platform: dto.platform,
-        jobTitle: result.jobTitle,
-        status: result.success ? 'success' : 'error',
-        appliedAt: new Date(),
-      });
-      return {
-        message: result.success
-          ? 'Candidature envoyée 👍'
-          : 'Échec de la candidature 👎',
-      };
-    } catch (error) {
-      // Gérer une éventuelle erreur non prévue
+
+      if (result.success) {
+        await this.applicationService.create({
+          platform: dto.platform,
+          jobTitle: result.jobTitle,
+          status: 'success',
+          cvPath: dto.cvPath || '',
+        } as CreateApplicationDto);
+
+        return { message: 'Candidature envoyée avec CV 👍' };
+      } else {
+        return { message: 'Échec de la candidature 👎' };
+      }
+    } catch {
       throw new InternalServerErrorException('Automation failed');
     }
   }
