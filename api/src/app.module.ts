@@ -1,8 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SeleniumModule } from './selenium/selenium.module';
 
 @Module({
   imports: [
@@ -17,9 +16,12 @@ import { SeleniumModule } from './selenium/selenium.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    SeleniumModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    Logger.log('✅ SeleniumModule chargé avec succès', 'AppModule');
+  }
+}
