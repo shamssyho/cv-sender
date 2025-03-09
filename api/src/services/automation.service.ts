@@ -35,15 +35,15 @@ export class AutomationService {
       await driver.get('https://www.linkedin.com/jobs');
       await driver.sleep(5000);
 
-      console.log('Sélection du champ de recherche...');
+      console.log('Sélection du champ de recherche et saisie du job...');
       const searchBox = await driver.findElement(
         By.css('input.jobs-search-box__text-input'),
       );
       await searchBox.sendKeys(jobTitle, Key.RETURN);
-      console.log('✅ Recherche de jobs lancée pour :', jobTitle);
+      console.log('✅ Recherche lancée pour :', jobTitle);
       await driver.sleep(5000);
 
-      console.log("Filtrage des offres avec 'Candidature simplifiée'...");
+      console.log("Filtrage uniquement sur 'Candidature simplifiée'...");
       const easyApplyFilter = await driver.findElements(
         By.xpath("//button[contains(text(),'Candidature simplifiée')]"),
       );
@@ -55,9 +55,10 @@ export class AutomationService {
         console.log(
           "❌ Impossible de trouver le filtre 'Candidature simplifiée'.",
         );
+        return { success: false, jobTitle: 'Filtre non trouvé' };
       }
 
-      console.log('Attente des résultats...');
+      console.log('Attente des résultats filtrés...');
       await driver.wait(
         until.elementsLocated(By.className('job-card-container')),
         10000,
@@ -67,11 +68,13 @@ export class AutomationService {
       );
       if (jobs.length > 0) {
         await jobs[0].click();
-        console.log('✅ Premier job sélectionné.');
+        console.log(
+          "✅ Premier job avec 'Candidature simplifiée' sélectionné.",
+        );
         await driver.sleep(5000);
       } else {
-        console.log('❌ Aucun job trouvé.');
-        return { success: false, jobTitle: 'Aucun job trouvé' };
+        console.log("❌ Aucun job avec 'Candidature simplifiée' trouvé.");
+        return { success: false, jobTitle: 'Aucun job avec Easy Apply' };
       }
 
       console.log("Vérification du bouton 'Postuler'");
@@ -90,9 +93,7 @@ export class AutomationService {
         await buttons[0].click();
         console.log("✅ Bouton 'Postuler' cliqué.");
       } else {
-        console.log(
-          "❌ Aucun bouton 'Postuler' trouvé. L'offre ne permet peut-être pas la candidature rapide.",
-        );
+        console.log("❌ Aucun bouton 'Postuler' trouvé.");
         return {
           success: false,
           jobTitle: 'Aucune candidature rapide disponible',
