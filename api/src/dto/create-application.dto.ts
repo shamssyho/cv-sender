@@ -1,5 +1,4 @@
-import { IsString, IsOptional, IsDate } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsOptional } from 'class-validator';
 
 export class CreateApplicationDto {
   @IsString()
@@ -14,12 +13,7 @@ export class CreateApplicationDto {
   @IsString()
   status: string;
 
-  @IsOptional() // ✅ Rend `cvPath` optionnel si jamais il n'est pas fourni
+  @IsOptional()
   @IsString()
   cvPath?: string;
-
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date) // ✅ Convertit la date JSON en `Date`
-  appliedAt?: Date;
 }

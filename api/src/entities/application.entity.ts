@@ -1,4 +1,3 @@
-// application.entity.ts (si vous utilisez TypeORM)
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
@@ -7,14 +6,14 @@ export class Application {
   id: number;
 
   @Column()
-  platform: string; // ex: "LinkedIn", "Indeed", ...
+  platform: string;
 
   @Column()
-  jobTitle: string; // intitulé du poste ou référence
+  jobTitle: string;
 
   @Column()
-  status: string; // "success" ou "error"
+  status: string;
 
-  @Column({ type: 'timestamptz' })
-  appliedAt: Date; // date/heure d'envoi de la candidature
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  appliedAt: Date;
 }
