@@ -79,19 +79,19 @@ export class AutomationService {
 
       console.log("Vérification du bouton 'Postuler'");
       await driver.sleep(5000);
-      const buttons = await driver.findElements(
+      const applyButton = await driver.findElements(
         By.className('jobs-apply-button'),
       );
-      if (buttons.length > 0) {
-        await driver.wait(until.elementIsVisible(buttons[0]), 10000);
-        await driver.wait(until.elementIsEnabled(buttons[0]), 10000);
+      if (applyButton.length > 0) {
+        await driver.wait(until.elementIsVisible(applyButton[0]), 10000);
+        await driver.wait(until.elementIsEnabled(applyButton[0]), 10000);
         await driver.executeScript(
           'arguments[0].scrollIntoView();',
-          buttons[0],
+          applyButton[0],
         );
         await driver.sleep(3000);
-        await buttons[0].click();
-        console.log("✅ Bouton 'Postuler' cliqué.");
+        await applyButton[0].click();
+        console.log('✅ Formulaire de candidature ouvert.');
       } else {
         console.log("❌ Aucun bouton 'Postuler' trouvé.");
         return {
@@ -100,30 +100,56 @@ export class AutomationService {
         };
       }
 
-      console.log('Ajout du CV...');
+      console.log('Remplissage du formulaire de candidature...');
       await driver.sleep(5000);
-      const fileInput = await driver.findElements(By.css("input[type='file']"));
-      if (fileInput.length > 0) {
-        await fileInput[0].sendKeys(cvPath);
-        console.log('✅ CV ajouté.');
-      } else {
-        console.log('❌ Champ de téléchargement du CV non trouvé.');
-        return { success: false, jobTitle: 'Champ CV introuvable' };
-      }
-
-      console.log('Envoi de la candidature...');
-      await driver.sleep(5000);
-      const submitButtons = await driver.findElements(
-        By.css("button[aria-label='Envoyer la candidature']"),
+      const phoneField = await driver.findElement(
+        By.css("input[aria-label='Mobile phone number']"),
       );
-      if (submitButtons.length > 0) {
-        await submitButtons[0].click();
-        console.log('✅ Candidature envoyée !');
-        return { success: true, jobTitle: 'Candidature envoyée' };
-      } else {
-        console.log("❌ Bouton 'Envoyer la candidature' introuvable.");
-        return { success: false, jobTitle: "Bouton d'envoi introuvable" };
+      await phoneField.clear();
+      await phoneField.sendKeys('0783154623');
+      console.log('✅ Numéro de téléphone rempli.');
+
+      const nextButton = await driver.findElement(
+        By.css("button[aria-label='Next']"),
+      );
+      await nextButton.click();
+      console.log("✅ Passage à l'étape suivante.");
+      await driver.sleep(5000);
+
+      console.log('Sélection et validation du CV...');
+      const cvSelection = await driver.findElements(
+        By.css("input[type='radio']"),
+      );
+      if (cvSelection.length > 0) {
+        await cvSelection[0].click();
+        console.log('✅ CV sélectionné.');
       }
+      await nextButton.click();
+      await driver.sleep(5000);
+
+      console.log('Réponses aux questions supplémentaires...');
+      const inputFields = await driver.findElements(
+        By.css("input[type='text']"),
+      );
+      for (let field of inputFields) {
+        await field.sendKeys('4');
+      }
+      console.log('✅ Questions répondues.');
+      await driver.sleep(3000);
+
+      const reviewButton = await driver.findElement(
+        By.css("button[aria-label='Review']"),
+      );
+      await reviewButton.click();
+      console.log('✅ Passage à la revue finale.');
+      await driver.sleep(5000);
+
+      const submitButton = await driver.findElement(
+        By.css("button[aria-label='Submit application']"),
+      );
+      await submitButton.click();
+      console.log('✅ Candidature envoyée avec succès !');
+      return { success: true, jobTitle: 'Candidature envoyée' };
     } catch (error) {
       console.error('❌ Erreur Selenium :', error);
       return { success: false, jobTitle: 'Erreur' };
